@@ -14,7 +14,7 @@ Team marketplace repository for Cursor IDE plugins. Import this repository as a 
 
 | Plugin | Description |
 |--------|-------------|
-| [continuous-documentation](./continuous-documentation/) | Keeps repository README.md current by mining conversation transcripts for documentation-worthy changes. |
+| [continuous-documentation](./continuous-documentation/) | Keeps README in sync with git + transcripts; run the **update-repository-readme** command on demand or rely on the optional stop hook; **continuous-documentation** skill holds doc rules. |
 
 ## Adding a new plugin
 

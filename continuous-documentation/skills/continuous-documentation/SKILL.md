@@ -1,19 +1,21 @@
 ---
 name: continuous-documentation
-description: Incrementally update the repository README.md by combining actual code changes (what) with conversation transcripts (why). Use when the hook triggers or the user asks to update documentation.
+description: >-
+  README content rules: project-type structure, inclusion/exclusion, slop filter,
+  and capturing intent from conversation. Use when editing readme.md to these
+  standards, or when applying output rules while running the update-repository-readme
+  command.
 ---
 
 # Continuous Documentation
 
-Keep the repository `readme.md` up-to-date using two sources of truth:
-- **Git** tells you what changed.
-- **Transcripts** tell you why it changed.
+Rules for what belongs in the repository `readme.md` and how to write it. **Git** supplies what changed; **transcripts** supply why — when you run the full sync, use the **update-repository-readme** command for the step-by-step workflow (git log/diff, transcript discovery, incremental index).
 
 ## Core Principles
 
 ### 1. What and Why are equally important
 
-"What" lives in the code — The current state. Data flow, domain logic, data contracts. Use `git log` and `git diff` to find it. 
+"What" lives in the code — The current state. Data flow, domain logic, data contracts. Use `git log` and `git diff` to find it when syncing.
 
 "Why" lives in the conversation — Design Choices: the user's stated reasoning, rejected alternatives, constraints that shaped the decision. Use transcripts to find it and describe why it was designed as such.
 
@@ -23,40 +25,10 @@ Every section, sentence, and word must earn its place. If you cannot justify why
 
 ---
 
-## Inputs
+## Command vs this skill
 
-- **Git history**: `git log` and `git diff` since the last indexed commit (stored in incremental index).
-- **Transcripts**: `~/.cursor/projects/<workspace-slug>/agent-transcripts/`
-- **Existing readme**: `readme.md` (root for microservices, project-level for monoliths)
-- **Incremental index**: `.cursor/hooks/state/continuous-documentation-index.json`
-
-## Workflow
-
-1. **Read** the existing `readme.md`.
-2. **Determine project type** (Service, Monolith, UI, NuGet/NPM Package) from repository structure. Apply the matching README structure below.
-3. **Load** incremental index if present.
-4. **Gather what changed** (the What):
-   - Run `git log --oneline` from the last indexed commit to HEAD.
-   - For commits that touch documentation-relevant areas (new projects, changed domain/application layers, added endpoints, altered configuration), run `git diff` to understand the scope.
-   - Identify: new capabilities, changed behavior, removed functionality, new integration points, architectural shifts, non-trivial business logic changes.
-5. **Gather why it changed** (the Why):
-   - Discover transcript files and process only new or changed ones (mtime newer than indexed).
-   - From each transcript, extract stated reasoning: user-provided context, rejected alternatives, constraints, trade-offs, problem statements that prompted the change.
-   - Correlate transcript intent with the git changes from step 4. Match by timeframe and subject matter.
-6. **Merge What + Why** into README updates:
-   - For each documentation-worthy change, write what it is and why it was done.
-   - If the transcript provides no intent for a change, document the what only. Do not invent a why.
-   - If the transcript reveals intent but the code change is trivial, skip it — intent without a meaningful what is noise.
-7. **Update `readme.md`**:
-   - Modify existing sections in place when content has changed.
-   - Add new sections only when the structure calls for them.
-   - Remove content that is no longer accurate.
-   - Preserve the section structure for the detected project type.
-8. **Run the slop filter** on every sentence (see below).
-9. **Write back** the incremental index:
-   - Store latest commit SHA processed.
-   - Store latest transcript mtimes.
-   - Remove entries for transcripts that no longer exist.
+- **`update-repository-readme` command** — Full runbook: read `readme.md`, load the incremental index, walk git + transcripts, merge updates, write the index. Use on demand; the stop hook suggests this command when cadence thresholds pass.
+- **This skill** — Use alone when the user wants README guidance or edits without the full sync, and always as the rule set the command must follow.
 
 ---
 

@@ -4,14 +4,18 @@ Cursor plugin that keeps the repository `readme.md` current by mining conversati
 
 ## How it works
 
-A `stop` hook tracks conversation cadence. When enough turns and time have passed, it triggers the `continuous-documentation` skill.
+Three pieces work together:
 
-The skill combines two sources of truth:
+| Piece | Role |
+|--------|------|
+| **`update-repository-readme` command** | Step-by-step workflow: git + transcripts + incremental index → update `readme.md`. Run from the command palette anytime; does not require the hook. |
+| **`continuous-documentation` skill** | README structure, inclusion/exclusion, slop filter, and intent guidance. Use on its own for doc edits, or as the rule set the command must follow. |
+| **`stop` hook** | Tracks conversation cadence; when thresholds pass, suggests running the command. |
 
-- **Git history** — what changed in the code (`git log`, `git diff` since the last indexed commit).
-- **Conversation transcripts** — why it changed (stated reasoning, rejected alternatives, constraints).
+Two sources of truth feed the sync:
 
-It then updates `readme.md` following project-type-specific structure guidelines (Service, Monolith, UI, or Package) and strips AI filler language via an embedded slop filter.
+- **Git history** — what changed (`git log`, `git diff` since the last indexed commit).
+- **Conversation transcripts** — why it changed (reasoning, alternatives, constraints).
 
 Processing is incremental — only new commits and changed transcripts are evaluated on each run.
 
